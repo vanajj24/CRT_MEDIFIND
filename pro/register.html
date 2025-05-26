@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #faf9f9 0%, #e8f0fe 100%);
+      font-family: Arial, sans-serif;
+    }
+
+    #register {
+      background: #ffffff;
+      padding: 36px 40px;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(200, 205, 230, 0.3);
+      width: 320px;
+      text-align: center;
+    }
+
+    #register input,
+    #register select {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border: 1.5px solid #dce3f2;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #f9fbff;
+    }
+
+    #register button {
+      width: 100%;
+      padding: 14px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #register button:hover {
+      background-color: #45a049;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="register">
+    <h2>Create Account</h2>
+    <input type="text" id="username" placeholder="Enter Username" required />
+    <input type="email" id="email" placeholder="Enter Email" required />
+    <input type="text" id="phone" placeholder="Enter Phone Number" required />
+    <input type="password" id="password" placeholder="Enter Password" required />
+    <select id="role" required>
+      <option value="" disabled selected>Select Role</option>
+      <option value="user">User</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button type="submit">Register</button>
+    <div class="error" id="error"></div>
+  </form>
+
+  <script>
+    document.getElementById("register").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const data = {
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        password: document.getElementById("password").value,
+        role: document.getElementById("role").value
+      };
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alert(result.message);
+          window.location.href = "login.html"; // ✅ redirect to login
+        } else {
+          document.getElementById("error").textContent = result.message || "Registration failed.";
+        }
+
+      } catch (error) {
+        document.getElementById("error").textContent = "Network error: " + error.message;
+      }
+    });
+  </script>
+
+</body>
+</html>

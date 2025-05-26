@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Medical Store Finder</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #e6f2ff, #d1f0e1);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .card h1 {
+            margin-bottom: 20px;
+            color: #0a7abf;
+        }
+
+        .card p {
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 14px;
+            background-color: #0a7abf;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #055f95;
+        }
+
+        .btn.logout {
+            background-color: #e74c3c;
+        }
+
+        .btn.logout:hover {
+            background-color: #c0392b;
+        }
+
+        .icon {
+            font-size: 48px;
+            color: #0a7abf;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="icon">💊</div>
+        <h1>Welcome to MedFinder</h1>
+        <p>Your one-stop tool to locate medicines near you</p>
+
+        <div id="guestButtons">
+            <a href="login.html" class="btn">Login</a>
+            <a href="register.html" class="btn">Register</a>
+        </div>
+
+        <div id="userButtons" style="display: none;">
+            <a href="dashboard.html" class="btn">Go to Dashboard</a>
+            <button class="btn logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        const token = sessionStorage.getItem('access_token');
+        const guest = document.getElementById('guestButtons');
+        const user = document.getElementById('userButtons');
+
+        if (token) {
+            guest.style.display = 'none';
+            user.style.display = 'block';
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.reload();
+        }
+    </script>
+
+</body>
+</html>

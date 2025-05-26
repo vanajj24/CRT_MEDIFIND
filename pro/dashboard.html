@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .nav {
+      margin-bottom: 30px;
+    }
+
+    .nav a {
+      margin-right: 15px;
+      text-decoration: none;
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .nav a:hover {
+      text-decoration: underline;
+    }
+
+    .profile {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 500px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>User Dashboard</h1>
+
+  <div class="nav" id="navLinks"></div>
+
+  <div class="profile" id="profile">Loading profile...</div>
+
+  <script>
+    const token = sessionStorage.getItem('access_token');
+    const role = sessionStorage.getItem('role');
+
+    if (!token) {
+      alert('You must login first.');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('navLinks').innerHTML = `
+      <a href="search.html">Search Medicine</a>
+      <a href="#" onclick="logout()">Logout</a>
+    `;
+
+    function logout() {
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+    }
+
+    async function loadProfile() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/profile', {
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          document.getElementById('profile').innerHTML = `<p style="color:red;">${error.message || 'Failed to load profile.'}</p>`;
+          return;
+        }
+
+        const user = await response.json();
+        document.getElementById('profile').innerHTML = `
+          <h3>Your Information</h3>
+          <p><strong>Username:</strong> ${user.username}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Phone:</strong> ${user.phone}</p>
+          <p><strong>Role:</strong> ${user.role}</p>
+        `;
+      } catch (err) {
+        document.getElementById('profile').innerHTML = 'Error loading profile: ' + err.message;
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

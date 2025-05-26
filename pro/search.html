@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Search Medicine</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="number"] { padding: 6px; width: 250px; }
+        button { margin-top: 15px; padding: 8px 16px; }
+        #manual-location { margin-top: 10px; }
+        #results { margin-top: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .error { color: red; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Search Medicine</h2>
+    <form id="searchForm">
+        <label for="name">Medicine Name: <span style="color: red;">*</span></label>
+        <input type="text" id="name" name="name" required />
+
+        <label>
+            <input type="radio" name="locationOption" value="current" checked />
+            Use Current Location (Default Hyderabad)
+        </label>
+        <label>
+            <input type="radio" name="locationOption" value="manual" />
+            Enter Latitude & Longitude Manually
+        </label>
+
+        <div id="manual-location" style="display: none;">
+            <label for="latitude">Latitude:</label>
+            <input type="number" step="any" id="latitude" name="latitude" placeholder="e.g. 17.385" />
+            <label for="longitude">Longitude:</label>
+            <input type="number" step="any" id="longitude" name="longitude" placeholder="e.g. 78.4867" />
+        </div>
+
+        <button type="submit">Search</button>
+    </form>
+
+    <div id="results"></div>
+    <div class="error" id="error"></div>
+
+    <script>
+        const form = document.getElementById('searchForm');
+        const manualLocationDiv = document.getElementById('manual-location');
+        const errorDiv = document.getElementById('error');
+        const resultsDiv = document.getElementById('results');
+
+        // Toggle manual location input
+        document.querySelectorAll('input[name="locationOption"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                manualLocationDiv.style.display = radio.value === 'manual' ? 'block' : 'none';
+            });
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorDiv.textContent = '';
+            resultsDiv.innerHTML = '';
+
+            const name = form.name.value.trim();
+            if (!name) {
+                errorDiv.textContent = 'Please enter medicine name.';
+                return;
+            }
+
+            const useCurrentLocation = form.locationOption.value === 'current';
+            const data = {
+                medicine_name: name,
+                use_current_location: useCurrentLocation
+            };
+
+            if (!useCurrentLocation) {
+                const lat = form.latitude.value.trim();
+                const lon = form.longitude.value.trim();
+                if (!lat || !lon) {
+                    errorDiv.textContent = 'Please enter both latitude and longitude.';
+                    return;
+                }
+                data.latitude = parseFloat(lat);
+                data.longitude = parseFloat(lon);
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/search_medicine', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    errorDiv.textContent = result.message || 'No medicines found.';
+                    return;
+                }
+
+                if (!Array.isArray(result) || result.length === 0) {
+                    resultsDiv.innerHTML = '<p>No medicines found.</p>';
+                    return;
+                }
+
+                // Build table
+                let tableHtml = '<table><thead><tr>' +
+                    '<th>Medicine Name</th>' +
+                    '<th>Store Name</th>' +
+                    '<th>Store Address</th>' +
+                    '<th>Stock</th>' +
+                    '<th>Distance (km)</th>' +
+                    '</tr></thead><tbody>';
+
+                result.forEach(item => {
+                    tableHtml += `<tr>
+                        <td>${item.medicine_name}</td>
+                        <td>${item.store_name}</td>
+                        <td>${item.store_address}</td>
+                        <td>${item.stock}</td>
+                        <td>${item.distance_km ? item.distance_km.toFixed(2) : 'N/A'}</td>
+                    </tr>`;
+                });
+
+                tableHtml += '</tbody></table>';
+                resultsDiv.innerHTML = tableHtml;
+
+            } catch (err) {
+                errorDiv.textContent = `Error fetching data: ${err.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

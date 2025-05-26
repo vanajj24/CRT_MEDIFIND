@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Add Medical Store</title>
+</head>
+<body>
+    <h1>Add Medical Store</h1>
+    <form id="addStoreForm">
+        <label>Store Name: <input type="text" name="store_name" required /></label><br /><br />
+        <label>Store Address: <input type="text" name="store_address" required /></label><br /><br />
+        <label>Latitude: <input type="text" name="latitude" /></label><br /><br />
+        <label>Longitude: <input type="text" name="longitude" /></label><br /><br />
+        <button type="submit">Add Store</button>
+    </form>
+    <p id="message"></p>
+
+    <script>
+        const form = document.getElementById('addStoreForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                store_name: form.store_name.value,
+                store_address: form.store_address.value,
+                latitude: form.latitude.value || null,
+                longitude: form.longitude.value || null,
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/add_store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('message').textContent = result.message;
+                    form.reset();
+                } else {
+                    document.getElementById('message').textContent = 'Error: ' + (result.message || 'Failed to add store');
+                }
+            } catch (error) {
+                document.getElementById('message').textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

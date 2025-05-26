@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Add Medicine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #message.success {
+            color: green;
+        }
+
+        #message.error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Medicine</h1>
+        <form id="addMedicineForm">
+            <label for="store_id">Store ID:
+                <input type="number" id="store_id" name="store_id" required />
+            </label>
+
+            <label for="name">Name:
+                <input type="text" id="name" name="name" required />
+            </label>
+
+            <label for="description">Description:
+                <input type="text" id="description" name="description" />
+            </label>
+
+            <button type="submit">Add Medicine</button>
+        </form>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        const form = document.getElementById('addMedicineForm');
+        const message = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                store_id: parseInt(form.store_id.value),
+                name: form.name.value,
+                description: form.description.value || ''
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/add_medicine', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    message.textContent = result.message;
+                    message.className = "success";
+                    form.reset();
+                } else {
+                    message.textContent = 'Error: ' + (result.message || 'Failed to add medicine');
+                    message.className = "error";
+                }
+            } catch (error) {
+                message.textContent = 'Error: ' + error.message;
+                message.className = "error";
+            }
+        });
+    </script>
+</body>
+</html>
